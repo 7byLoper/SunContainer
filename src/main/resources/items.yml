@@ -1,0 +1,36 @@
+items:
+  sword_1:
+    rarity: DEFAULT
+    value: 50.0
+    item:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2586
+      type: NETHERITE_SWORD
+  sword_2:
+    rarity: DEFAULT
+    value: 40.0
+    item:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2586
+      type: DIAMOND_SWORD
+  sword_3:
+    rarity: DEFAULT
+    value: 30.0
+    item:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2586
+      type: IRON_SWORD
+  sword_4:
+    rarity: DEFAULT
+    value: 20.0
+    item:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2586
+      type: GOLDEN_SWORD
+  sword_5:
+    rarity: DEFAULT
+    value: 10.0
+    item:
+      ==: org.bukkit.inventory.ItemStack
+      v: 2586
+      type: STONE_SWORD
