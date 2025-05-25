@@ -21,15 +21,16 @@ public final class SunContainer extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (checkSunCoreVersion()) {
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
         instance = this;
 
         configManager = new PluginConfigManager(this);
         databaseManager = new DatabaseManager(this);
         lootManager = new LootManager(this);
+
+        if (checkSunCoreVersion()) {
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
         databaseManager.connect();
 
@@ -51,7 +52,7 @@ public final class SunContainer extends JavaPlugin {
         int version = extractVersion(sunCore.getDescription().getVersion());
 
         if (version < 1032) {
-            getLogger().severe("Для работы плагина необходим SunCore версии 1.0.3.2 и выше");
+            getLogger().severe("Для работы плагина необходим SunCore версии 1.0.3.2 и выше. Ссылка на скачивание: http://t.me/bysundev_bot?start=free-SunCore");
             return true;
         }
 
