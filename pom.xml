@@ -6,7 +6,7 @@
 
   <groupId>ru.loper</groupId>
   <artifactId>SunContainer</artifactId>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <packaging>jar</packaging>
 
   <name>SunContainer</name>
@@ -58,6 +58,10 @@
           <id>sonatype</id>
           <url>https://oss.sonatype.org/content/groups/public/</url>
       </repository>
+      <repository>
+          <id>jitpack.io</id>
+          <url>https://jitpack.io</url>
+      </repository>
   </repositories>
 
   <dependencies>
@@ -68,11 +72,10 @@
           <scope>provided</scope>
       </dependency>
       <dependency>
-          <groupId>ru.loper.suncore</groupId>
-          <artifactId>suncore</artifactId>
-          <version>1.0</version>
-          <scope>system</scope>
-          <systemPath>C:/Users/Loper/Desktop/Loper pack/projects/java/SunCore/SunCore.jar</systemPath>
+          <groupId>com.github.7byloper</groupId>
+          <artifactId>SunCore</artifactId>
+          <version>1.0.3.2-RELEASE</version> <!-- Укажите актуальную версию -->
+          <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.projectlombok</groupId>

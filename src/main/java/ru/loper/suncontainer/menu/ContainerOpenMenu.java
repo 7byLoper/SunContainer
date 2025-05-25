@@ -4,20 +4,19 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import ru.loper.suncontainer.SunContainer;
-import ru.loper.suncontainer.config.ConfigManager;
 import ru.loper.suncontainer.config.DatabaseManager;
 import ru.loper.suncontainer.config.LootManager;
 import ru.loper.suncontainer.config.PluginConfigManager;
 import ru.loper.suncore.SunCore;
 import ru.loper.suncore.api.config.CustomConfig;
+import ru.loper.suncore.api.gui.AsyncMenu;
 import ru.loper.suncore.api.gui.Button;
-import ru.loper.suncore.api.gui.Menu;
 import ru.loper.suncore.api.items.ItemBuilder;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class ContainerOpenMenu extends Menu {
+public class ContainerOpenMenu extends AsyncMenu {
     private final CustomConfig config;
     private final PluginConfigManager configManager;
     private final DatabaseManager databaseManager;
@@ -67,7 +66,7 @@ public class ContainerOpenMenu extends Menu {
                 if (e.getWhoClicked() instanceof Player player) {
                     if (containers > 0) {
                         new ContainerAnimationMenu(configManager, lootManager).show(player);
-                        databaseManager.setValue(player.getName(), containers - 1);
+                        async(() -> databaseManager.setValue(player.getName(), containers - 1));
                         return;
                     }
                     configManager.configMessages("messages.no_keys_message").forEach(player::sendMessage);
@@ -86,5 +85,9 @@ public class ContainerOpenMenu extends Menu {
                 SunCore.printStacktrace("Ошибка при загрузке декораций для tags menu", e);
             }
         }
+    }
+
+    private void async(Runnable runnable) {
+        CompletableFuture.runAsync(runnable);
     }
 }
