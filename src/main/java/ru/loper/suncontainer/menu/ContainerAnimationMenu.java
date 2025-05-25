@@ -33,7 +33,7 @@ public class ContainerAnimationMenu extends Menu {
 
     private final transient CustomConfig config;
     private transient BukkitTask task;
-    private transient boolean changeTitle = false;
+    private transient boolean fastPrize = false;
     private final transient LootManager lootManager;
     private final EnumMap<ItemRarity, ItemBuilder> rarities;
     private final String title;
@@ -89,8 +89,8 @@ public class ContainerAnimationMenu extends Menu {
 
     @Override
     public void onClose(@NotNull InventoryCloseEvent e) {
-        if (changeTitle) {
-            changeTitle = false;
+        if (fastPrize) {
+            fastPrize = false;
             return;
         }
 
@@ -137,6 +137,7 @@ public class ContainerAnimationMenu extends Menu {
             @Override
             public void run() {
                 if (step >= slots.size()) {
+                    fastPrize = true;
                     player.closeInventory();
                     broadcastPrise();
                     cancel();
@@ -187,7 +188,7 @@ public class ContainerAnimationMenu extends Menu {
                         title.replace("{price}", String.format("%.2f", sapphires))
                 );
                 setInventory(newInventory);
-                changeTitle = true;
+                fastPrize = true;
                 player.openInventory(newInventory);
             }
         }.runTaskTimer(SunContainer.getInstance(), 5L, 4L);

@@ -75,7 +75,7 @@ public class PluginConfigManager extends ConfigManager {
     }
 
     public CustomConfig getOpenMenuConfig() {
-        return getCustomConfig("menu/animation_menu.yml");
+        return getCustomConfig("menu/open_menu.yml");
     }
 
     public String configMessage(String path) {
