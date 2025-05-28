@@ -25,6 +25,7 @@ public class PluginConfigManager extends ConfigManager {
 
     public PluginConfigManager(Plugin plugin) {
         super(plugin);
+        plugin.saveDefaultConfig();
     }
 
     @Override
