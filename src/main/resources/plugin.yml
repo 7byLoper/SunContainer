@@ -3,5 +3,8 @@ version: '${project.version}'
 main: ru.loper.suncontainer.SunContainer
 api-version: '1.16'
 author: Loper
+website: t.me/bySunDev
+depend:
+  - SunCore
 commands:
   container: {}
