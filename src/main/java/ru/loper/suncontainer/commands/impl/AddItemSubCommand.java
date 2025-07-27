@@ -42,10 +42,10 @@ public class AddItemSubCommand implements SubCommand {
             }
         } catch (IllegalArgumentException e) {
             sender.sendMessage(Colorize.parse("&c ▶ &fДоступные редкости: " +
-                    Arrays.stream(ItemRarity.values())
-                            .map(Enum::name)
-                            .map(String::toLowerCase)
-                            .collect(Collectors.joining("/"))));
+                                              Arrays.stream(ItemRarity.values())
+                                                      .map(Enum::name)
+                                                      .map(String::toLowerCase)
+                                                      .collect(Collectors.joining("/"))));
         }
 
     }

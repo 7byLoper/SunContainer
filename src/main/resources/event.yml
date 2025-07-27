@@ -1,0 +1,117 @@
+region_settings:
+  region_radius:
+    x: 20
+    y: 200
+    z: 20
+
+generator_settings:
+  radius: 2000
+  world: world
+  center:
+    x: 0
+    z: 0
+  biomes:
+    - BAMBOO_JUNGLE
+    - RIVER
+    - FROZEN_RIVER
+    - SWAMP
+    - TAIGA_MOUNTAINS
+    - FOREST
+    - ICE_SPIKES
+    - OCEAN
+    - RIVER
+    - MOUNTAINS
+    - LUKEWARM_OCEAN
+    - FOREST
+    - SWAMP
+    - JUNGLE_EDGE
+    - BEACH
+  # Тип разрешенных биомов
+  # Черный список (blacklist) - список запрещенных биомов
+  # Белый список (whitelist) - список разрешенных биомов
+  biomes_property_type: blacklist
+timers:
+  #Время до старта ивента
+  prestart: 60
+  started: 600
+  stopping: 120
+
+info_messages:
+  prestart: '&#C80000&l▶ К&#D60000&lо&#E40000&lн&#F10000&lт&#FF0000&lе&#F10000&lй&#E40000&lн&#D60000&lе&#C80000&lр &fпоявится через &#FF0000{time} &fна рандомных координатах'
+  start: '&#C80000&l▶ К&#D60000&lо&#E40000&lн&#F10000&lт&#FF0000&lе&#F10000&lй&#E40000&lн&#D60000&lе&#C80000&lр &fнаходится на координатах &#FF0000{x} {y} {z}&f и закроется через &#FF0000{time}'
+  stop: '&#C80000&l▶ К&#D60000&lо&#E40000&lн&#F10000&lт&#FF0000&lе&#F10000&lй&#E40000&lн&#D60000&lе&#C80000&lр &fнаходится на координатах &#FF0000{x} {y} {z}&f и удалится через &#FF0000{time}'
+
+rarities:
+  default:
+    region_flags:
+      build: deny
+      block-break: deny
+      block-place: deny
+      tnt: deny
+      lighter: deny
+      creeper-explosion: deny
+      ghast-fireball: deny
+      other-explosion: deny
+      enderman-grief: deny
+      fire-spread: deny
+      snowman-trails: deny
+      ravager-grief: deny
+      lava-fire: deny
+      water-flow: deny
+      lava-flow: deny
+      ice-melt: deny
+      chest-access: deny
+
+    schematic_file_name: container_default.schem
+    schematic_offsets:
+      x: 0
+      y: 1
+      z: 0
+
+    chance: 100
+
+    loot:
+      items: 90
+      change_chance: 10 #Шанс улучшения редкости
+      item_ticks: 5 #Сколько будет прокручиваний
+      tick_delay: 10 #Сколько будет длиться 1 прокручивание
+
+    hologram_toggle: true
+    hologram_offset:
+      x: 0.5
+      y: 2.5
+      z: 0.5
+
+    holograms:
+      start:
+        - '&#C80000&lК&#D60000&lо&#E40000&lн&#F10000&lт&#FF0000&lе&#F10000&lй&#E40000&lн&#D60000&lе&#C80000&lр'
+        - ''
+        - 'Забрано предметов: &#ff7000[ {loot} / {max-loot} ]'
+        - 'До закрытия: &#ff0000{time}'
+      stop:
+        - '&#C80000&lК&#D60000&lо&#E40000&lн&#F10000&lт&#FF0000&lе&#F10000&lй&#E40000&lн&#D60000&lе&#C80000&lр'
+        - 'До удаления &#ff0000{time}'
+    messages:
+      prestart:
+        - '&f'
+        - '&#C80000&l▶ К&#D60000&lо&#E40000&lн&#F10000&lт&#FF0000&lе&#F10000&lй&#E40000&lн&#D60000&lе&#C80000&lр &fпоявится через &#FF00001 минуту &fна рандомных координатах.'
+        - '&f'
+      start:
+        - ' &#C80000&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+        - ' &#C80000&n▍&f &#C80000&lК&#D60000&lо&#E40000&lн&#F10000&lт&#FF0000&lе&#F10000&lй&#E40000&lн&#D60000&lе&#C80000&lр'
+        - ' &#C80000&n▍&f'
+        - ' &#C80000&n▍&f Редкость: &x&2&6&D&C&F&F&lО&x&2&5&E&0&F&F&lб&x&2&4&E&3&F&F&lы&x&2&3&E&7&F&F&lч&x&2&2&E&B&F&F&lн&x&2&1&E&E&F&F&lы&x&2&0&F&2&F&F&lй'
+        - ' &#C80000&n▍&f Координаты &#FF0000{x} {y} {z}'
+        - ' &#C80000&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+      stop: []
+    sounds:
+      prestart: ENTITY_PLAYER_LEVELUP;1.0;1.0
+      start: ENTITY_PLAYER_LEVELUP;1.0;1.0
+      stop: ENTITY_PLAYER_LEVELUP;1.0;1.0
+    chests:
+      material: RED_SHULKER_BOX
+      offsets:
+        1:
+          x: 0
+          y: 1
+          z: 0

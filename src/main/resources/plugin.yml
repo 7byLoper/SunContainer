@@ -6,5 +6,7 @@ author: Loper
 website: t.me/bySunDev
 depend:
   - SunCore
+softdepend:
+  - SunEventManager
 commands:
   container: {}

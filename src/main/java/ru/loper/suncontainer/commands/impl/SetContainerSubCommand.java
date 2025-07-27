@@ -14,21 +14,21 @@ import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class GiveContainerSubCommand implements SubCommand {
+public class SetContainerSubCommand implements SubCommand {
     private final ContainersStorage containersStorage;
 
     @Override
     public void onCommand(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sender.sendMessage(Colorize.parse("&c ▶ &fИспользование: /container give <игрок> <количество>"));
+            sender.sendMessage(Colorize.parse("&c ▶ &fИспользование: &7/container set <игрок> <количество>"));
             return;
         }
 
         try {
             Bukkit.getScheduler().runTaskAsynchronously(SunContainer.getInstance(), () -> {
                 int amount = Integer.parseInt(args[2]);
-                containersStorage.addContainers(args[1], amount);
-                sender.sendMessage(Colorize.parse("&b ▶ &fВы успешно выдали &7" + amount + "&f контейнеров игроку &7" + args[1]));
+                containersStorage.setContainers(args[1], amount);
+                sender.sendMessage(Colorize.parse("&b ▶ &fВы успешно установили &7" + amount + "&f контейнеров игроку &7" + args[1]));
             });
         } catch (NumberFormatException e) {
             sender.sendMessage(Colorize.parse("&c ▶ &fВведенное вами число некорректно"));

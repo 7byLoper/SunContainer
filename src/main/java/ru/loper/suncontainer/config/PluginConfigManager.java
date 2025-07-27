@@ -4,10 +4,12 @@ import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
+import ru.loper.suncontainer.SunContainer;
 import ru.loper.suncontainer.utils.ItemRarity;
 import ru.loper.suncore.SunCore;
 import ru.loper.suncore.api.config.ConfigManager;
 import ru.loper.suncore.api.config.CustomConfig;
+import ru.loper.suncore.api.database.DataBaseManager;
 import ru.loper.suncore.api.items.ItemBuilder;
 import ru.loper.suncore.utils.Colorize;
 
@@ -16,32 +18,50 @@ import java.util.List;
 
 @Getter
 public class PluginConfigManager extends ConfigManager {
+    private ContainerEventConfigManager eventConfigManager;
+    private DataBaseManager databaseManager;
     private List<String> openBroadcast;
+    private List<String> eventEndMessages;
     private List<Integer> animationSlots;
     private EnumMap<ItemRarity, ItemBuilder> rarities;
-    private String animationMenuTitle, noPermission;
+    private String animationMenuTitle, noPermission, containerIsOpeningMessage, unknownPlaceholder;
 
     private int animationItemTicks;
 
     public PluginConfigManager(Plugin plugin) {
         super(plugin);
-        plugin.saveDefaultConfig();
     }
 
     @Override
     public void loadConfigs() {
         addCustomConfig(new CustomConfig("menu/animation_menu.yml", plugin));
         addCustomConfig(new CustomConfig("menu/open_menu.yml", plugin));
+        addCustomConfig(new CustomConfig("event.yml", plugin));
+        plugin.saveDefaultConfig();
     }
 
     @Override
     public void loadValues() {
         openBroadcast = configMessages("messages.open_message");
+        eventEndMessages = configMessages("messages.end_message");
         noPermission = configMessage("messages.no_permission");
+        containerIsOpeningMessage = configMessage("messages.container_event_is_opening");
+        unknownPlaceholder = configMessage("messages.unknown_placeholder");
 
         animationSlots = getAnimationMenuConfig().getConfig().getIntegerList("item_slots");
         animationItemTicks = getAnimationMenuConfig().getConfig().getInt("item_ticks", 10);
         animationMenuTitle = getAnimationMenuConfig().configMessage("title");
+
+        ConfigurationSection databaseSection = plugin.getConfig().getConfigurationSection("database");
+        if (databaseSection != null) {
+            databaseManager = new DataBaseManager(databaseSection, plugin);
+        } else {
+            plugin.getLogger().severe("Ошибка загрузки базы данных, плагин не будет работать");
+        }
+
+        if (SunContainer.getInstance().isActiveEventManager()) {
+            eventConfigManager = new ContainerEventConfigManager(getEventConfig(), plugin);
+        }
 
         loadRarities();
     }
@@ -77,6 +97,10 @@ public class PluginConfigManager extends ConfigManager {
 
     public CustomConfig getOpenMenuConfig() {
         return getCustomConfig("menu/open_menu.yml");
+    }
+
+    public CustomConfig getEventConfig() {
+        return getCustomConfig("event.yml");
     }
 
     public String configMessage(String path) {

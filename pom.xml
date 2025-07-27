@@ -6,7 +6,7 @@
 
   <groupId>ru.loper</groupId>
   <artifactId>SunContainer</artifactId>
-  <version>1.0.1</version>
+  <version>1.2.0</version>
   <packaging>jar</packaging>
 
   <name>SunContainer</name>
@@ -62,6 +62,10 @@
           <id>jitpack.io</id>
           <url>https://jitpack.io</url>
       </repository>
+      <repository>
+          <id>local-repo</id>
+          <url>file:${project.basedir)/libs</url>
+      </repository>
   </repositories>
 
   <dependencies>
@@ -74,13 +78,19 @@
       <dependency>
           <groupId>com.github.7byloper</groupId>
           <artifactId>SunCore</artifactId>
-          <version>1.0.3.2-RELEASE</version> <!-- Укажите актуальную версию -->
+          <version>1.0.3.6-RELEASE</version> <!-- Укажите актуальную версию -->
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>ru.loper</groupId>
+          <artifactId>SunEventManager</artifactId>
+          <version>1.0.0</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.projectlombok</groupId>
           <artifactId>lombok</artifactId>
-          <version>LATEST</version>
+          <version>1.18.38</version>
           <scope>provided</scope>
       </dependency>
   </dependencies>

@@ -4,7 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import ru.loper.suncontainer.config.DatabaseManager;
+import ru.loper.suncontainer.api.storage.ContainersStorage;
 import ru.loper.suncontainer.config.LootManager;
 import ru.loper.suncontainer.config.PluginConfigManager;
 import ru.loper.suncore.SunCore;
@@ -19,11 +19,11 @@ import java.util.concurrent.CompletableFuture;
 public class ContainerOpenMenu extends AsyncMenu {
     private final CustomConfig config;
     private final PluginConfigManager configManager;
-    private final DatabaseManager databaseManager;
+    private final ContainersStorage containersStorage;
     private final LootManager lootManager;
 
-    public ContainerOpenMenu(PluginConfigManager configManager, DatabaseManager databaseManager, LootManager lootManager) {
-        this.databaseManager = databaseManager;
+    public ContainerOpenMenu(PluginConfigManager configManager, ContainersStorage containersStorage, LootManager lootManager) {
+        this.containersStorage = containersStorage;
         this.configManager = configManager;
         this.lootManager = lootManager;
         config = configManager.getOpenMenuConfig();
@@ -49,7 +49,7 @@ public class ContainerOpenMenu extends AsyncMenu {
         ConfigurationSection itemSection = config.getConfig().getConfigurationSection("items.open_item");
         if (itemSection == null) return;
 
-        int containers = databaseManager.getValue(getOpener().getName());
+        int containers = containersStorage.getContainers(getOpener().getName());
 
         ItemBuilder builder = ItemBuilder.fromConfig(itemSection);
 
@@ -66,7 +66,7 @@ public class ContainerOpenMenu extends AsyncMenu {
                 if (e.getWhoClicked() instanceof Player player) {
                     if (containers > 0) {
                         new ContainerAnimationMenu(configManager, lootManager).show(player);
-                        async(() -> databaseManager.setValue(player.getName(), containers - 1));
+                        async(() -> containersStorage.takeContainers(player.getName(), 1));
                         return;
                     }
                     configManager.configMessages("messages.no_keys_message").forEach(player::sendMessage);

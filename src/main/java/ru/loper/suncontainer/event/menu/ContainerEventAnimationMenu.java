@@ -1,4 +1,4 @@
-package ru.loper.suncontainer.menu;
+package ru.loper.suncontainer.event.menu;
 
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -6,50 +6,57 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import ru.loper.suncontainer.SunContainer;
 import ru.loper.suncontainer.api.animation.impl.BaseContainerAnimation;
 import ru.loper.suncontainer.config.LootManager;
 import ru.loper.suncontainer.config.PluginConfigManager;
+import ru.loper.suncontainer.event.rarity.ContainerLootSettings;
+import ru.loper.suncontainer.event.rarity.chests.ContainerChest;
 import ru.loper.suncontainer.utils.ContainerItem;
 import ru.loper.suncontainer.utils.ItemRarity;
 import ru.loper.suncontainer.utils.Utils;
+import ru.loper.suncore.SunCore;
 import ru.loper.suncore.api.config.CustomConfig;
 import ru.loper.suncore.api.gui.Menu;
 import ru.loper.suncore.api.items.ItemBuilder;
-import ru.loper.suncore.utils.MessagesUtils;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ContainerAnimationMenu extends Menu {
+public class ContainerEventAnimationMenu extends Menu {
     private static final Material DEFAULT_RARITY_MATERIAL = Material.BLACK_STAINED_GLASS_PANE;
     private final BaseContainerAnimation animation;
     private final CustomConfig config;
+    private final ContainerLootSettings lootSettings;
+    private final ContainerChest chest;
     private final LootManager lootManager;
     private final EnumMap<ItemRarity, ItemBuilder> rarities;
     private final String title;
-    private final List<String> broadcast;
 
-    private final Random random = ThreadLocalRandom.current();
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private final int maxTicks;
     private final List<Integer> slots;
-    private int step = 0;
-    private double sapphires = 0.0;
-    private ItemRarity currentRarity = ItemRarity.DEFAULT;
-    private AnimationRunnable task;
+    protected int step = 0;
+    protected double sapphires = 0.0;
+    protected ItemRarity currentRarity = ItemRarity.DEFAULT;
+    protected AnimationRunnable task;
 
-    public ContainerAnimationMenu(PluginConfigManager configManager, LootManager lootManager) {
+
+    public ContainerEventAnimationMenu(PluginConfigManager configManager, LootManager lootManager, ContainerLootSettings lootSettings, ContainerChest chest) {
         this.lootManager = lootManager;
+        this.lootSettings = lootSettings;
+        this.chest = chest;
         config = configManager.getAnimationMenuConfig();
         title = configManager.getAnimationMenuTitle();
-        maxTicks = configManager.getAnimationItemTicks();
+        maxTicks = lootSettings.getItemTicks();
         slots = configManager.getAnimationSlots();
-        broadcast = new ArrayList<>(configManager.getOpenBroadcast());
         rarities = configManager.getRarities();
 
         this.animation = new BaseContainerAnimation() {
@@ -58,14 +65,13 @@ public class ContainerAnimationMenu extends Menu {
                 currentPlayer = player;
                 animationInventory = getInventory();
                 task = new AnimationRunnable();
-                task.runTaskTimer(SunContainer.getInstance(), 5L, 4L);
+                task.runTaskTimer(SunContainer.getInstance(), lootSettings.getTickDelay(), lootSettings.getTickDelay());
             }
 
             @Override
             public void stopAnimation() {
                 if (task != null && !task.isCancelled()) {
                     task.cancel();
-                    fastPrize();
                 }
             }
         };
@@ -91,20 +97,30 @@ public class ContainerAnimationMenu extends Menu {
         ConfigurationSection decorSection = config.getConfig().getConfigurationSection("decor");
         if (decorSection == null) return;
 
-        addDecorFromSection(decorSection);
+        for (String key : decorSection.getKeys(false)) {
+            try {
+                Material material = Material.valueOf(key.toUpperCase());
+                addDecorItems(material, decorSection.getIntegerList(key));
+            } catch (IllegalArgumentException e) {
+                SunCore.printStacktrace("Ошибка при загрузке декораций для анимационного меню", e);
+            }
+        }
     }
 
     @Override
     public void onClose(@NotNull InventoryCloseEvent e) {
-        if (task.updateTitle) {
+        if (task != null && task.updateTitle) {
             task.updateTitle = false;
             return;
         }
-        animation.stopAnimation();
+
+        if (task != null && !task.isCancelled()) {
+            task.cancel();
+        }
     }
 
     private void updateRarity() {
-        if (random.nextInt(5) == 0) {
+        if (random.nextInt(0, 100) <= lootSettings.getRarityChangeChance()) {
             currentRarity = Utils.upgradeRarity(currentRarity);
         }
     }
@@ -119,36 +135,9 @@ public class ContainerAnimationMenu extends Menu {
         return rarities.getOrDefault(rarity, new ItemBuilder(DEFAULT_RARITY_MATERIAL));
     }
 
-    private void fastPrize() {
-        Player player = animation.getCurrentPlayer();
-        if (player == null) return;
-
-        for (; step < slots.size(); step++) {
-            ContainerItem item = lootManager.getRandomItem(currentRarity);
-            if (item != null && item.itemStack() != null) {
-                Utils.addItemInventory(player, item.itemStack());
-                sapphires += item.price();
-            }
-            updateRarity();
-        }
-
-        broadcastPrise();
-    }
-
-    private void broadcastPrise() {
-        Player player = animation.getCurrentPlayer();
-        if (player == null) return;
-
-        broadcast.replaceAll(a -> a
-                .replace("{player}", player.getName())
-                .replace("{price}", String.format("%.2f", sapphires)));
-
-        broadcast.forEach(MessagesUtils::broadcast);
-    }
-
     private class AnimationRunnable extends BukkitRunnable {
+        protected boolean updateTitle = false;
         private int ticks = 0;
-        private boolean updateTitle = false;
 
         @Override
         public void run() {
@@ -156,9 +145,7 @@ public class ContainerAnimationMenu extends Menu {
             if (player == null) return;
 
             if (step >= slots.size()) {
-                player.closeInventory();
-                broadcastPrise();
-                cancel();
+                completeAnimation(player);
                 return;
             }
 
@@ -166,7 +153,7 @@ public class ContainerAnimationMenu extends Menu {
             ContainerItem containerItem = lootManager.getRandomItem(currentRarity);
 
             if (containerItem == null) {
-                step++;
+                nextStep(player);
                 return;
             }
 
@@ -175,8 +162,7 @@ public class ContainerAnimationMenu extends Menu {
             }
 
             if (ticks++ <= maxTicks) {
-                inventory.setItem(slot, containerItem.itemStack());
-                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 2.0f);
+                updateSlot(player, slot, containerItem.itemStack());
                 return;
             }
 
@@ -185,7 +171,26 @@ public class ContainerAnimationMenu extends Menu {
             updateRarity();
 
             ticks = 0;
+            nextStep(player);
+        }
+
+        private void nextStep(Player player) {
+            chest.addLootItem();
             step++;
+
+            if (chest.getLootItems() >= lootSettings.getLootItems()) {
+                completeAnimation(player);
+            }
+        }
+
+        private void completeAnimation(Player player) {
+            player.closeInventory();
+            cancel();
+        }
+
+        private void updateSlot(Player player, int slot, ItemStack item) {
+            inventory.setItem(slot, item);
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 2.0f);
         }
 
         private void completeItemTransfer(ContainerItem item, int slot) {
@@ -197,13 +202,14 @@ public class ContainerAnimationMenu extends Menu {
         }
 
         private void updateInventoryTitle(double sapphires) {
-            Inventory newInventory = Utils.updateTitle(
-                    inventory,
-                    title.replace("{price}", String.format("%.2f", sapphires))
-            );
+            updateTitle = true;
+            String newTitle = title.replace("{price}", String.format("%.2f", sapphires));
+            Inventory newInventory = Utils.updateTitle(inventory, newTitle);
+
+            ItemStack[] contents = inventory.getContents();
             animation.setInventory(newInventory);
             setInventory(newInventory);
-            updateTitle = true;
+            newInventory.setContents(contents);
             animation.getCurrentPlayer().openInventory(newInventory);
         }
     }
